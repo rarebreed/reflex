@@ -1,0 +1,11 @@
+# Ansible managed
+{
+    "version": 0,
+    "tools": {
+        "pinger": {
+            "label": "cockpit-plugin-test",
+            "path": "plugin.html"
+        }
+    },
+    "content-security-policy": "default-src 'self' 'unsafe-inline' 'unsafe-eval'"
+}
