@@ -1,6 +1,6 @@
 {
-  "name": "plugin-test",
-  "version": "1.0.0",
+  "name": "reflex",
+  "version": "0.0.1",
   "main": "index.js",
   "author": "Sean Toner",
   "license": "Apache-2.0",

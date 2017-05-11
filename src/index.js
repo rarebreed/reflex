@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 
-const APP = () => {
+const App = () => {
     return(
             <div>
               "hello world"
@@ -9,4 +9,4 @@ const APP = () => {
     );
 }
 
-ReactDOM.render(<App />, document.querySelect(".container"));
+ReactDOM.render(<App />, document.querySelector(".container"));
