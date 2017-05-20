@@ -10,7 +10,7 @@ class RegisterChoice extends Component {
         <div>
           <input />
           <input />
-          <button className="registerButton"/>  
+          <button className="registerButton"/>
         </div>
       );
     }
