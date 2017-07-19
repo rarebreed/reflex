@@ -6,8 +6,8 @@
   "license": "Apache-2.0",
   "scripts": {
     "build": "webpack",
-    "flow-src": "babel src -d build/lib/src",
-    "flow-tests": "babel src -d build/lib/tests",
+    "flow-src": "babel src -d build/lib/src --source-maps inline",
+    "flow-tests": "babel src -d build/lib/tests --source-maps inline",
     "start": "node ./node_modules/webpack-dev-server/bin/webpack-dev-server.js"
   },
   "devDependencies": {
@@ -17,6 +17,7 @@
     "babel-plugin-transform-react-jsx": "^6.24.1",
     "babel-preset-env": "^1.4.0",
     "babel-preset-flow": "^6.23.0",
+    "babel-register": "^6.24.1",
     "flow-bin": "^0.49.1",
     "patternfly": "^3.23.3",
     "webpack": "^2.5.1",
