@@ -7,8 +7,24 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Launch Program",
-            "program": "${file}"
+            "name": "Launch Flow Program",
+            "program": "${file}",
+            "sourceMaps": true,
+            "preLaunchTask": "flow-src",
+            "outFiles": [
+                "${workspaceRoot}/build/lib/src/**/*.js"
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch Flow Scripts",
+            "program": "${file}",
+            "sourceMaps": true,
+            "preLaunchTask": "flow-scripts",
+            "outFiles": [
+                "${workspaceRoot}/build/lib/src/**/*.js"
+            ]
         }
     ]
 }

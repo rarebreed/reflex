@@ -7,7 +7,9 @@
   "scripts": {
     "build": "webpack",
     "flow-src": "babel src -d build/lib/src --source-maps inline",
-    "flow-tests": "babel src -d build/lib/tests --source-maps inline",
+    "flow-tests": "babel tests -d build/lib/tests --source-maps inline",
+    "flow-run": "flow status",
+    "flow-scripts": "babel src -d build/lib/src --source-maps inline && babel scripts -d build/scripts --source-maps inline",
     "start": "node ./node_modules/webpack-dev-server/bin/webpack-dev-server.js"
   },
   "devDependencies": {
@@ -24,12 +26,16 @@
     "webpack-dev-server": "^2.4.5"
   },
   "dependencies": {
+    "eslint": "^4.3.0",
+    "express": "^4.15.3",
+    "express-graphql": "^0.6.6",
+    "graphql": "^0.10.5",
     "immutable": "^3.8.1",
     "react": "^15.5.4",
     "react-dom": "^15.5.4",
     "react-redux": "^5.0.4",
     "react-router": "^4.1.1",
-    "redux": "^3.6.0",
+    "redux": "^3.7.2",
     "rxjs": "^5.4.2"
   }
 }

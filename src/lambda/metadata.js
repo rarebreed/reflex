@@ -8,8 +8,10 @@
  */
 
 import { curry } from "./currying"
+const { Map } = require("immutable")
 const fs = require("fs")
 
+const MapFile = "/"
 
 /**
  * Represents some callable entity, eg a function, a class or even a script.
