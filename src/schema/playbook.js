@@ -5,8 +5,8 @@ const schema = `
 type QeosMachine {
     ipAddress: String
     image: ID
-    meta: string
-    name: string
+    meta: String
+    name: String
 }
 
 type Query {

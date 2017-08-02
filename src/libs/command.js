@@ -22,9 +22,6 @@ type ProcessInfo<T1, T2> = { data: Rx.Observable<T1>
                            , done: Rx.Observable<T2>
                            }
 
-type PromiseProcess = { resolver: (string | number) => string
-                      , promise: Promise<string>
-                      }
 
 /**
  * The Command class is just a convenience wrapper to launch a subprocess
@@ -60,7 +57,9 @@ class Command {
     }
 
     /**
-     * Launches a subprocess and captures the stdout and stores it to both an in-memory buffer and a file
+     * Launches a subprocess and captures the stdout and stores it to this.output
+     * 
+     * TODO: write another Observable stream that pipes output to a file
      */
     run(): ProcessInfo<string, ?number> {
         let [args, opts] = this._default()
@@ -75,9 +74,7 @@ class Command {
                     return d.toString("utf-8")
             })
         let doneStream$: Rx.Observable<number | string> = Rx.Observable.fromEvent(this.child, "exit");
-        return { data: dataStream$
-               , done: doneStream$
-               };
+        return { data: dataStream$, done: doneStream$ };
     }
 
     /**
@@ -116,42 +113,6 @@ function launch( cmdname: string
                : ProcessInfo<string, ?number> {
     let cmd = new Command(cmdname, args, opts);
     return cmd.run();
-}
-
-
-/**
- * TODO: put this into a unit test
- */
-function testPromise(): Promise<void> {
-    let cmd = new Command("iostat", ["2", "4"])
-    return cmd.runp(false)
-    .then(res => { 
-        console.log(`Process exited with a value of: ${res}`)
-        return cmd.output
-    })
-    .then(outp => console.log(outp))
-}
-
-
-// TODO: put this into a unit test
-function testStream(): Rx.Observable<string> {
-    let cmd = new Command("iostat", ["2", "4"])
-    let proc = cmd.run()
-    let { data, done } = proc;
-
-    data.subscribe(out => { 
-        let output = out.toString("utf-8")
-        console.log(output)
-        cmd.output += output
-    });
-    done.subscribe((evt) => { 
-        console.log(evt)
-        if (typeof evt == "object")
-            cmd.result = evt.message
-        else
-            cmd.result = evt
-    });
-    return proc
 }
 
 

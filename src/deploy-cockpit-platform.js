@@ -7,13 +7,14 @@
  * - Run the cockpit.yml playbook on it
  * - Run the frp-project.yml playbook on it
  */
+import Rx from "rxjs"
 const express = require("express")
 const graphqlHTTP = require("express-graphql")
 const { buildSchema } = require("graphql")
 
 const immutable = require("immutable")
 const Map = immutable.Map
-const command = require("../build/src/libs/command")
+const command = require("./libs/command")
 
 // Build the schema
 const playbook = require("./schema/playbook")
@@ -32,10 +33,12 @@ type SpawnOpts = Reflex$SpawnOpts
  * @param {string} metadata will be passed to the nova meta command
  */
 function testPlatformCmd( user: string 
-                        , image: string
+                        , image: ?string
                         , systemName: string
                         , metadata: string = "cockpit_platform=true")
                         : string {
+    if (image == null)
+        image = defaultGlance
     return `ansible-playbook -i "localhost," -u ${user} rhsm-sut.yml -e "glance_image=${image} sut_name=${systemName} metadata=${metadata}"`;
 }
 
@@ -57,9 +60,6 @@ function frpProjectCmd( dynPath: string
 }
 
 
-const makeOpts = () =>  Map({"shell": true})
-
-
 /**
  * Launches a nodejs child process which will call an ansible-playbook
  * 
@@ -70,26 +70,43 @@ const makeOpts = () =>  Map({"shell": true})
 const makeMachine = ( name: string
                     , image: ?string
                     , meta: ?string )
-                    : void => {
+                    : { data: Rx.Observable<string>
+                      , done: Rx.Observable<string | number> 
+                      } => {
     // TODO: Hard coding this path only makes sense if we have this running as a service
-    const pathToPlayground: string = "/home/stoner/Projects/ansible-playground";
-    const playbookOpts = command.setOpts(makeOpts(), ["cwd", pathToPlayground]).toObject()
+    const playpath = "/home/stoner/Projects/ansible-playground"
+    let envcopy = {}
+    for (let k in process.env) {
+        envcopy[k] = process.env[k]
+    }
+    envcopy.PATH = `${playpath}/venv/bin:${envcopy.PATH}` 
+
+    const playbookOpts: Reflex$SpawnOpts = {
+        cwd: playpath, 
+        env: envcopy
+    }
     if (image == null)
         image = defaultGlance
     if (meta == null)
         meta = "cockpit_platform=true"
     
-    const cmdline = testPlatformCmd("stoner", image, name, meta)
+    //const cmdline = testPlatformCmd("stoner", image, name, meta)
+    const cmdline = frpProjectCmd("localhost,", "stoner", "/tmp/flowtest")
     let [tpPlayCmd, ...playArgs] = cmdline.split(" ")
 
-    let opts: SpawnOpts = {
-        cwd: pathToPlayground,
-        shell: true
-    }
-
-    let process: command.ProcessInfo = command.launchp(tpPlayCmd, playArgs, opts)
-    
+    console.log(cmdline)
+    let cmd = new command.Command(tpPlayCmd, playArgs, playbookOpts)
+    return cmd.run()
 }
+
+let { data, done } = makeMachine("", "", "")
+data.subscribe(o => {
+    let output = (typeof o === "string") ? o : o.toString("utf-8")
+    console.log(output)
+})
+done.subscribe(r => {
+    console.log(`The exit code is: ${r}`)
+})
 
 /**
  * This is like a route in GraphQL.  It has to have fields that have the same name as the members from the Query
@@ -97,4 +114,12 @@ const makeMachine = ( name: string
  */
 const root = {
     makeQeosMachine: makeMachine
+}
+
+module.exports = {
+    "root": root,
+    "makeMachine": makeMachine,
+    "frpProjectCmd": frpProjectCmd,
+    "testPlatformCmd": testPlatformCmd,
+    "defaultGlance": defaultGlance
 }
