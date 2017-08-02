@@ -4,11 +4,12 @@
  */
 
 import { ChildProcess, spawn, exec } from "child_process"
+import { Map, Record } from "immutable"
 const Rx = require("rxjs")
 const buffer = require("buffer")
 const fs = require("fs")
 const stream = require("stream")
-const immutable = require("immutable")
+
 
 type SpawnOpts = Reflex$SpawnOpts
 
@@ -21,6 +22,9 @@ type ProcessInfo<T1, T2> = { data: Rx.Observable<T1>
                            , done: Rx.Observable<T2>
                            }
 
+type PromiseProcess = { resolver: (string | number) => string
+                      , promise: Promise<string>
+                      }
 
 /**
  * The Command class is just a convenience wrapper to launch a subprocess
@@ -30,11 +34,15 @@ class Command {
     args: ?Array<string>;
     options: ?SpawnOpts;
     child: ChildProcess;
+    output: string;
+    result: string | number | null;
 
     constructor( cmd: string
                , args?: ?Array<string>
                , opts?: SpawnOpts) {
-        this.cmd = cmd;
+        this.cmd = cmd
+        this.output = ""
+        this.result = null
         if (!!args)
             this.args = args;
         if (!!opts)
@@ -75,10 +83,8 @@ class Command {
     /**
      * A Promise based version.  The caller passing in the resolve funcion
      */
-    runp( onDone: (output: string)
-        , showoutput: boolean = true
-        , timeout?: number) {
-        let output = ""
+    runp( showoutput: ?boolean)
+        : Promise<string> {
         let done = false
         let res: string | number;
         let [args, opts] = this._default()
@@ -91,51 +97,61 @@ class Command {
                 reject(err)
             }
             this.child.stdout.on("data", data => {
-                output += data
+                let output = ""
+                output += data.toString("utf-8")
+                this.output += output
                 if (showoutput)
-                    console.log(data)
+                    console.log(output)
             })
             this.child.on("exit", resolve)
         })
-        p.then(onDone)
         return p
     }
 }
 
 
-function launch(cmdname: string, args?: ?Array<string>, opts?: SpawnOpts) {
+function launch( cmdname: string
+               , args?: ?Array<string>
+               , opts?: SpawnOpts)
+               : ProcessInfo<string, ?number> {
     let cmd = new Command(cmdname, args, opts);
     return cmd.run();
 }
 
 
-const done = (output: string) => 
-  (result: string | number)  => {
-    console.log(output)
-    console.log(`Process exited with a value of: ${result}`)
-    return { output: output, result: result }
+/**
+ * TODO: put this into a unit test
+ */
+function testPromise(): Promise<void> {
+    let cmd = new Command("iostat", ["2", "4"])
+    return cmd.runp(false)
+    .then(res => { 
+        console.log(`Process exited with a value of: ${res}`)
+        return cmd.output
+    })
+    .then(outp => console.log(outp))
 }
 
-/**
- * 
- */
-function processWatcher(proc: ProcessInfo<string, number | string>): Rx.BehaviorSubject<string> {
+
+// TODO: put this into a unit test
+function testStream(): Rx.Observable<string> {
+    let cmd = new Command("iostat", ["2", "4"])
+    let proc = cmd.run()
     let { data, done } = proc;
-    let subject$ = Rx.BehaviorSubject();
 
-    subject$.subscribe({
-        next: (out) => {
-
-        }
-    })
-
-    // In a more serious program, the observer here would accumulate the output
     data.subscribe(out => { 
-        console.log(out)
+        let output = out.toString("utf-8")
+        console.log(output)
+        cmd.output += output
     });
     done.subscribe((evt) => { 
         console.log(evt)
+        if (typeof evt == "object")
+            cmd.result = evt.message
+        else
+            cmd.result = evt
     });
+    return proc
 }
 
 

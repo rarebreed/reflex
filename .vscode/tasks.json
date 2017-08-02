@@ -24,6 +24,12 @@
             "script": "flow-scripts",
             "identifier": "flow-scripts",
             "problemMatcher": []
+        },
+        {
+            "type": "npm",
+            "script": "flow-tests",
+            "identifier": "flow-tests",
+            "problemMatcher": []
         }
     ]
 }

@@ -19,7 +19,7 @@
  *   - rxjs
  *   - cyclejs
  *   - koa
- *   - AVA
+ *   - tape
  *   - immutablejs
  *   - react*, react-dom*, react-redux*, react-router*
  *   - redux

@@ -12,7 +12,7 @@
             "sourceMaps": true,
             "preLaunchTask": "flow-src",
             "outFiles": [
-                "${workspaceRoot}/build/lib/src/**/*.js"
+                "${workspaceRoot}/build/src/**/*.js"
             ]
         },
         {
@@ -23,7 +23,7 @@
             "sourceMaps": true,
             "preLaunchTask": "flow-scripts",
             "outFiles": [
-                "${workspaceRoot}/build/lib/src/**/*.js"
+                "${workspaceRoot}/build/src/**/*.js"
             ]
         }
     ]
