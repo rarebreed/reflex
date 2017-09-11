@@ -20,6 +20,7 @@ type SpawnOpts = Reflex$SpawnOpts
  */
 type ProcessInfo<T1, T2> = { data: Rx.Observable<T1> 
                            , done: Rx.Observable<T2>
+                           , error: Rx.Observable<Error>
                            }
 
 
@@ -63,18 +64,19 @@ class Command {
      */
     run(): ProcessInfo<string, ?number> {
         let [args, opts] = this._default()
-        this.child = spawn(this.cmd, args, opts);
+        this.child = spawn(this.cmd, args, opts)
 
         // This is where we rx-ify it
-        let dataStream$: Rx.Observable<string> = Rx.Observable.fromEvent(this.child.stdout, "data")
+        let done$: Rx.Observable<number | string> = Rx.Observable.fromEvent(this.child, "exit");
+        let error$: Rx.Observable<Error> = Rx.Observable.fromEvent(this.child, "error");
+        let output$: Rx.Observable<string> = Rx.Observable.fromEvent(this.child.stdout, "data")
             .map((d: string | Buffer) => {
                 if (typeof d === "string")
                     return d
                 else
                     return d.toString("utf-8")
             })
-        let doneStream$: Rx.Observable<number | string> = Rx.Observable.fromEvent(this.child, "exit");
-        return { data: dataStream$, done: doneStream$ };
+        return { data: output$, done: done$, error: error$};
     }
 
     /**

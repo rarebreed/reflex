@@ -18,12 +18,12 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Launch Flow Scripts",
+            "name": "Launch Flow Tests",
             "program": "${file}",
             "sourceMaps": true,
-            "preLaunchTask": "flow-scripts",
+            "preLaunchTask": "flow-tests",
             "outFiles": [
-                "${workspaceRoot}/build/src/**/*.js"
+                "${workspaceRoot}/build/tests/**/*.js"
             ]
         }
     ]

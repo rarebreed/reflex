@@ -11,11 +11,11 @@ declare type Reflex$QeosMachine = {
     image: string,
     meta: ?string,
     name: string
-}
+};
 
 declare type Reflex$GraphQLRoot = {
     makeQeosMachine: (name: string, image: ?string, meta: ?string) => QeosMachine
-}
+};
 
 // I have no idea why this type wasn't declared in flow
 declare type Reflex$SpawnOpts = {
